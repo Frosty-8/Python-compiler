@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Online Compiler</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header>
+    <h1 class="typing-glow">🌐 CodeStorm Compiler</h1>
+    <p id="time" class="time-display">🕒 --:--:--</p>
+  </header>
+
+  <main class="grid-container">
+    <section class="form-section">
+      <div class="dropdown-container">
+        <label for="language">Choose Language</label>
+        <select id="language">
+          <option value="71">Python 🐍</option>
+          <option value="54">C++ 💻</option>
+          <option value="62">Java ☕</option>
+          <option value="63">JavaScript ⚡</option>
+        </select>
+      </div>
+
+      <div class="input-area">
+        <label for="stdin">Custom Input (stdin):</label>
+        <textarea id="stdin" placeholder="Enter input here..."></textarea>
+      </div>
+
+      <button onclick="runCode()">▶ Run Code</button>
+    </section>
+
+    <section class="code-section">
+      <label for="code">💡 Code Editor</label>
+      <textarea id="code" placeholder="// Start coding here...">print("Hello, World!")</textarea>
+    </section>
+
+    <section class="output-section">
+      <label>📤 Output</label>
+      <div id="output" class="output-box">💬 Waiting for code...</div>
+    </section>
+  </main>
+
+  <footer>
+    Made with 💙 using Flask & Judge0 · <a href="https://github.com/Frosty-8" target="_blank">GitHub</a>
+  </footer>
+
+  <script>
+    function updateTime() {
+      const now = new Date();
+      document.getElementById("time").textContent = "🕒 " + now.toLocaleTimeString();
+    }
+    setInterval(updateTime, 1000);
+    updateTime();
+
+    async function runCode() {
+      const language_id = document.getElementById("language").value;
+      const source_code = document.getElementById("code").value;
+      const stdin = document.getElementById("stdin").value;
+      const outputDiv = document.getElementById("output");
+
+      outputDiv.innerHTML = "⏳ Running...";
+
+      const response = await fetch("/run", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ language_id, source_code, stdin })
+      });
+
+      const result = await response.json();
+      outputDiv.innerHTML = `
+        <pre><strong>Status:</strong> ${result.status}</pre>
+        <pre><strong>Output:</strong>\n${result.stdout || result.stderr}</pre>
+        <pre><strong>Execution Time:</strong> ${result.time}s</pre>
+        <pre><strong>Memory Usage:</strong> ${result.memory} KB</pre>
+      `;
+    }
+  </script>
+</body>
+</html>
